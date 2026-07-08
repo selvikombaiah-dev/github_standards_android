@@ -1,6 +1,7 @@
 package com.example.githubstandards
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             GitHubStandardsTheme {
                 GitHubStandardsApp()
+                Log.d("Test","Test log")
             }
         }
     }
