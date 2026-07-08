@@ -1,6 +1,7 @@
 name: PR Debug
 
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - opened
@@ -13,9 +14,4 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print details
-        run: |
-          echo "Action: ${{ github.event.action }}"
-          echo "Merged: ${{ github.event.pull_request.merged }}"
-          echo "Base Branch: ${{ github.event.pull_request.base.ref }}"
-          echo "Head Branch: ${{ github.event.pull_request.head.ref }}"
+      - run: echo "Workflow triggered"
