@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
             GitHubStandardsTheme {
                 GitHubStandardsApp()
                 Log.d("Test","Test log")
+                Log.d("Test","Release log1")
             }
         }
     }
