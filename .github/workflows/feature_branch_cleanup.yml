@@ -1,4 +1,4 @@
-name: Branch Cleanup
+name: Branch Cleanup Test
 
 on:
   pull_request:
