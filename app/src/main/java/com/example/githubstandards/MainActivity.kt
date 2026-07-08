@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                 GitHubStandardsApp()
                 Log.d("Test","Test log")
                 Log.d("Test","Release log1")
+                Log.d("Test","Release log2")
             }
         }
     }
