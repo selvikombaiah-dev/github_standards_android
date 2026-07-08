@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("Test","Release log5")
                 Log.d("Test","Release log6")
                 Log.d("Test","Release log7")
+                Log.d("Test","Release log8")
             }
         }
     }
