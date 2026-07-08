@@ -18,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.example.githubstandards.ui.theme.GitHubStandardsTheme
@@ -31,6 +30,8 @@ class MainActivity : ComponentActivity() {
             GitHubStandardsTheme {
                 GitHubStandardsApp()
                 Log.d("Test","Test log")
+                Log.d("Test","Release log1")
+                Log.d("Test","Release log2")
             }
         }
     }
