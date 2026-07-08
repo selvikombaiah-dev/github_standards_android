@@ -31,6 +31,11 @@ class MainActivity : ComponentActivity() {
                 Log.i("Release branch Test","Release Test log")
                 GitHubStandardsApp()
                 Log.d("Test","Test log")
+                Log.d("Test","Release log1")
+                Log.d("Test","Release log2")
+                Log.d("Test","Release log3")
+                Log.d("Test","Release log4")
+                Log.d("Test","Release log5")
             }
         }
     }
