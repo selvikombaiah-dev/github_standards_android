@@ -1,0 +1,46 @@
+name: PR Checklist Validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const targetBranch = context.payload.pull_request.base.ref;
+
+            let requiredChecks = [];
+
+            if (targetBranch === 'main') {
+              requiredChecks = [
+                'Regression testing completed',
+                'Security review completed',
+                'Release notes updated'
+              ];
+            } else if (targetBranch === 'development') {
+              requiredChecks = [
+                'Build successful',
+                'Unit tests passed'
+              ];
+            } else if (targetBranch.startsWith('release/')) {
+              requiredChecks = [
+                'QA signoff completed',
+                'UAT signoff completed'
+              ];
+            }
+
+            const missing = requiredChecks.filter(
+              item => !body.includes(`- [x] ${item}`)
+            );
+
+            if (missing.length > 0) {
+              core.setFailed(
+                `Missing checklist items: ${missing.join(', ')}`
+              );
+            }
