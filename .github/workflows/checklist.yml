@@ -80,4 +80,3 @@ jobs:
             }
 
             console.log('✅ All mandatory checklist items are completed.');
-`
