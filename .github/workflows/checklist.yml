@@ -2,18 +2,30 @@ name: PR Checklist Validation
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
 
 jobs:
   validate:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/github-script@v7
+      - name: Validate PR Checklist
+        uses: actions/github-script@v7
         with:
           script: |
             const body = context.payload.pull_request.body || '';
             const targetBranch = context.payload.pull_request.base.ref;
+
+            console.log('====================================');
+            console.log(`Target Branch: ${targetBranch}`);
+            console.log('====================================');
+            console.log('PR Body:');
+            console.log(body);
+            console.log('====================================');
 
             let requiredChecks = [];
 
@@ -35,12 +47,37 @@ jobs:
               ];
             }
 
-            const missing = requiredChecks.filter(
-              item => !body.includes(`- [x] ${item}`)
-            );
+            console.log('Required Checks:');
+            console.log(requiredChecks);
+
+            const missing = [];
+
+            for (const item of requiredChecks) {
+
+              const escapedItem = item.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&'
+              );
+
+              const regex = new RegExp(
+                `[-*]\\s*\\[x\\]\\s*${escapedItem}`,
+                'i'
+              );
+
+              console.log(
+                `Checking "${item}" => ${regex.test(body)}`
+              );
+
+              if (!regex.test(body)) {
+                missing.push(item);
+              }
+            }
 
             if (missing.length > 0) {
               core.setFailed(
                 `Missing checklist items: ${missing.join(', ')}`
               );
             }
+
+            console.log('✅ All mandatory checklist items are completed.');
+`
