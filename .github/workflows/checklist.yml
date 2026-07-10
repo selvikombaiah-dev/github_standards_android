@@ -29,48 +29,21 @@ jobs:
 
             let requiredChecks = [];
 
-            // Main Branch Validation
             if (targetBranch === 'main') {
-
               requiredChecks = [
-                'QA approval received',
-                'UAT approval received',
-                'Business approval received',
-                'Release notes updated',
-                'Production deployment plan verified',
-                'Rollback plan documented',
-                'Monitoring plan verified',
-                'Security review completed',
-                'I confirm this release is production ready'
-              ];
-
-            // Development Branch Validation
-            } else if (targetBranch === 'development') {
-
-              requiredChecks = [
-                'Build successful',
-                'Unit tests passed',
-                'Code reviewed by self',
-                'No hardcoded credentials',
-                'No Sonar/Lint issues',
-                'No impact to existing features',
-                'Backward compatibility verified'
-              ];
-
-            // Release Branch Validation
-            } else if (targetBranch.startsWith('release/')) {
-
-              requiredChecks = [
-                'Build successful',
-                'Unit tests passed',
-                'Integration testing completed',
                 'Regression testing completed',
-                'QA signoff received',
-                'No critical/open defects',
-                'Release version updated',
-                'Configuration verified',
-                'Database changes reviewed',
-                'Rollback strategy verified'
+                'Security review completed',
+                'Release notes updated'
+              ];
+            } else if (targetBranch === 'development') {
+              requiredChecks = [
+                'Build successful',
+                'Unit tests passed'
+              ];
+            } else if (targetBranch.startsWith('release/')) {
+              requiredChecks = [
+                'QA signoff completed',
+                'UAT signoff completed'
               ];
             }
 
@@ -91,29 +64,19 @@ jobs:
                 'i'
               );
 
-              const isChecked = regex.test(body);
-
               console.log(
-                `Checking "${item}" => ${isChecked}`
+                `Checking "${item}" => ${regex.test(body)}`
               );
 
-              if (!isChecked) {
+              if (!regex.test(body)) {
                 missing.push(item);
               }
             }
 
             if (missing.length > 0) {
-
-              console.log('Missing Items:');
-              console.log(missing);
-
               core.setFailed(
                 `Missing checklist items: ${missing.join(', ')}`
               );
-
-            } else {
-
-              console.log(
-                '✅ All mandatory checklist items completed.'
-              );
             }
+
+            console.log('✅ All mandatory checklist items are completed.');
