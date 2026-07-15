@@ -1,0 +1,119 @@
+name: PR Checklist Validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR Checklist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const targetBranch = context.payload.pull_request.base.ref;
+
+            console.log('====================================');
+            console.log(`Target Branch: ${targetBranch}`);
+            console.log('====================================');
+            console.log('PR Body:');
+            console.log(body);
+            console.log('====================================');
+
+            let requiredChecks = [];
+
+            // Main Branch Validation
+            if (targetBranch === 'main') {
+
+              requiredChecks = [
+                'QA approval received',
+                'UAT approval received',
+                'Business approval received',
+                'Release notes updated',
+                'Production deployment plan verified',
+                'Rollback plan documented',
+                'Monitoring plan verified',
+                'Security review completed',
+                'I confirm this release is production ready'
+              ];
+
+            // Development Branch Validation
+            } else if (targetBranch === 'development') {
+
+              requiredChecks = [
+                'Build successful',
+                'Unit tests passed',
+                'Code reviewed by self',
+                'No hardcoded credentials',
+                'No Sonar/Lint issues',
+                'No impact to existing features',
+                'Backward compatibility verified'
+              ];
+
+            // Release Branch Validation
+            } else if (targetBranch.startsWith('release/')) {
+
+              requiredChecks = [
+                'Build successful',
+                'Unit tests passed',
+                'Integration testing completed',
+                'Regression testing completed',
+                'QA signoff received',
+                'No critical/open defects',
+                'Release version updated',
+                'Configuration verified',
+                'Database changes reviewed',
+                'Rollback strategy verified'
+              ];
+            }
+
+            console.log('Required Checks:');
+            console.log(requiredChecks);
+
+            const missing = [];
+
+            for (const item of requiredChecks) {
+
+              const escapedItem = item.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&'
+              );
+
+              const regex = new RegExp(
+                `[-*]\\s*\\[x\\]\\s*${escapedItem}`,
+                'i'
+              );
+
+              const isChecked = regex.test(body);
+
+              console.log(
+                `Checking "${item}" => ${isChecked}`
+              );
+
+              if (!isChecked) {
+                missing.push(item);
+              }
+            }
+
+            if (missing.length > 0) {
+
+              console.log('Missing Items:');
+              console.log(missing);
+
+              core.setFailed(
+                `Missing checklist items: ${missing.join(', ')}`
+              );
+
+            } else {
+
+              console.log(
+                '✅ All mandatory checklist items completed.'
+              );
+            }

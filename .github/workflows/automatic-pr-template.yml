@@ -1,0 +1,91 @@
+name: Apply Branch PR Template
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+
+permissions:
+  pull-requests: write
+
+jobs:
+  update-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Template
+        id: template
+        run: |
+          TARGET="${{ github.event.pull_request.base.ref }}"
+
+          echo "Target Branch: $TARGET"
+
+          if [ "$TARGET" = "development" ]; then
+            echo "FILE=.github/PULL_REQUEST_TEMPLATE/development.md" >> $GITHUB_OUTPUT
+
+          elif [[ "$TARGET" =~ ^release/ ]]; then
+            echo "FILE=.github/PULL_REQUEST_TEMPLATE/release.md" >> $GITHUB_OUTPUT
+
+          elif [ "$TARGET" = "main" ]; then
+            echo "FILE=.github/PULL_REQUEST_TEMPLATE/main.md" >> $GITHUB_OUTPUT
+
+          else
+            echo "No matching template found"
+            exit 1
+          fi
+
+      - name: Update PR Template
+        uses: actions/github-script@v7
+        env:
+          TEMPLATE_FILE: ${{ steps.template.outputs.FILE }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            const action = context.payload.action;
+
+            const baseChanged =
+              context.payload.changes &&
+              context.payload.changes.base;
+
+            console.log(`Action: ${action}`);
+            console.log(`Target Branch Changed: ${!!baseChanged}`);
+
+            // Run only when:
+            // 1. PR Created
+            // 2. PR Reopened
+            // 3. Target branch changed
+
+            if (
+              action !== 'opened' &&
+              action !== 'reopened' &&
+              !baseChanged
+            ) {
+              console.log(
+                'Skipping template update because target branch was not modified.'
+              );
+              return;
+            }
+
+            const templateBody =
+              fs.readFileSync(
+                process.env.TEMPLATE_FILE,
+                'utf8'
+              );
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number:
+                context.payload.pull_request.number,
+              body: templateBody
+            });
+
+            console.log(
+              `Applied template: ${process.env.TEMPLATE_FILE}`
+            );
